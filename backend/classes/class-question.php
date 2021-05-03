@@ -42,19 +42,19 @@ class Question
         foreach ($aConditions as $condition => $key) {
             switch ($condition) {
                 case 'amount':
-                    $amount = $aConditions['amount'];
+                    $amount = $key;
                     break;
                 case 'category':
                     $sQuery .= " AND questions.question_category_fk=:category";
-                    $aParams[':category'] = $aConditions['category'];
+                    $aParams[':category'] = $key;
                     break;
                 case 'type':
                     $sQuery .= " AND questions.question_type_fk=:type";
-                    $aParams[':type'] = $aConditions['type'];
+                    $aParams[':type'] = $key;
                     break;
                 case 'difficulty':
                     $sQuery .= " AND questions.question_difficulty_fk=:difficulty";
-                    $aParams[':difficulty'] = $aConditions['difficulty'];
+                    $aParams[':difficulty'] = $key;
                     break;
                 case 'random':
                     $random .= " ORDER BY RAND() ";
