@@ -35,25 +35,41 @@ class Question
             INNER JOIN difficulties ON questions.question_difficulty_fk = difficulties.difficulty_id
             INNER JOIN answers ON questions.question_id = answers.answer_question_fk AND answers.answer_is_correct = 1
         ";
+        $aParams = array();
+        $amount = 50000;
+        $random = "";
 
-        $amount = array_key_exists("amount", $aConditions) ? $aConditions['amount'] : 50000;
-        if (array_key_exists("category", $aConditions)) {
-            $sQuery .= " AND questions.question_category_fk = '$aConditions[category]' ";
-        }
-        if (array_key_exists("type", $aConditions)) {
-            $sQuery .= " AND questions.question_type_fk = '$aConditions[type]' ";
-        }
-        if (array_key_exists("difficulty", $aConditions)) {
-            $sQuery .= " AND questions.question_difficulty_fk = '$aConditions[difficulty]' ";
+        foreach ($aConditions as $condition => $key) {
+            switch ($condition) {
+                case 'amount':
+                    $amount = $aConditions['amount'];
+                    break;
+                case 'category':
+                    $sQuery .= " AND questions.question_category_fk=:category";
+                    $aParams[':category'] = $aConditions['category'];
+                    break;
+                case 'type':
+                    $sQuery .= " AND questions.question_type_fk=:type";
+                    $aParams[':type'] = $aConditions['type'];
+                    break;
+                case 'difficulty':
+                    $sQuery .= " AND questions.question_difficulty_fk=:difficulty";
+                    $aParams[':difficulty'] = $aConditions['difficulty'];
+                    break;
+                case 'random':
+                    $random .= " ORDER BY RAND() ";
+                    break;
+            }
         }
         $sQuery .= " GROUP BY id ";
-        if (array_key_exists("random", $aConditions)) {
-            $sQuery .= " ORDER BY RAND() ";
-        }
+        $sQuery .= " ORDER BY RAND() ";
         $sQuery .= " LIMIT :amount ";
         try {
             $q =  $this->db->prepare($sQuery);
             $q->bindValue(':amount', $amount, PDO::PARAM_INT);
+            foreach ($aParams as $param => $key) {
+                $q->bindParam($param, $key);
+            }
             $q->execute();
             return $q;
         } catch (Exception $ex) {
